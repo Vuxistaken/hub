@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hub">
+<script>
+window.onerror = function (msg, src, line, col) {
+  var b = document.getElementById('errbox');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'errbox';
+    b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;background:#b00020;color:#fff;font:20px/1.3 Helvetica,Arial,sans-serif;padding:14px 20px;-webkit-user-select:text';
+    (document.body || document.documentElement).appendChild(b);
+  }
+  b.innerHTML += 'HATA: ' + msg + ' (satır ' + line + ')<br>';
+  return false;
+};
+</script>
+<style>
+:root{
+  --bg:#10151C; --card:#1A222C; --text:#F2F4F7; --muted:#A3AFBF; --accent:#F5B54A; --track:#2C3744;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#10151C;background:var(--bg);
+  color:#F2F4F7;color:var(--text);
+  font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;padding:32px 44px 36px 44px;
+  display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.head{height:44px;display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;
+  -webkit-align-items:center;align-items:center;margin-bottom:14px}
+#greet{font-size:22px;letter-spacing:.02em;color:#A3AFBF;color:var(--muted)}
+#hint{font-size:16px;color:#A3AFBF;color:var(--muted);border:1px solid #A3AFBF;border-color:var(--muted);
+  border-radius:20px;padding:8px 16px}
+.headr{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+#week{font-size:20px;letter-spacing:.04em;color:#F5B54A;color:var(--accent);margin-right:18px}
+#modeBtn{font-family:inherit;font-size:17px;min-height:44px;padding:0 20px;border-radius:22px;background:transparent;
+  border:1px solid #A3AFBF;border-color:var(--muted);color:#A3AFBF;color:var(--muted);outline:none}
+.card{background:#1A222C;background:var(--card);border-radius:28px}
+.row{display:-webkit-flex;display:flex}
+.main{-webkit-flex:1;flex:1;min-height:0;margin-bottom:22px}
+.clock{-webkit-flex:1.3;flex:1.3;min-width:0;padding:26px 32px;margin-right:22px;display:-webkit-flex;display:flex;
+  -webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:space-between;justify-content:space-between}
+#time{font-size:22vh;line-height:1;font-weight:300;letter-spacing:-.03em;white-space:nowrap}
+#dayname{font-size:40px;font-weight:500;line-height:1.1}
+#datefull{font-size:24px;color:#A3AFBF;color:var(--muted);margin-top:4px}
+.wx{-webkit-flex:1;flex:1;min-width:0;padding:26px 30px;display:-webkit-flex;display:flex;
+  -webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:space-between;justify-content:space-between}
+.loc{font-size:20px;color:#A3AFBF;color:var(--muted);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.loc svg{margin-right:8px}
+#wxStatus{font-size:15px;margin-left:auto;color:#A3AFBF;color:var(--muted)}
+.wxmid{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between}
+#temp{font-size:15vh;line-height:1;font-weight:300;letter-spacing:-.03em}
+#wxIcon{color:#F5B54A;color:var(--accent)}
+#wxDesc{font-size:28px;font-weight:500}
+#wxSub{font-size:19px;color:#A3AFBF;color:var(--muted);margin-top:6px}
+.metrics{height:118px;margin-bottom:22px}
+.metric{-webkit-flex:1;flex:1;min-width:0;margin-right:22px;padding:16px 22px;border-radius:24px;
+  background:#1A222C;background:var(--card);display:-webkit-flex;display:flex;-webkit-flex-direction:column;
+  flex-direction:column;-webkit-justify-content:space-between;justify-content:space-between}
+.metric:last-child{margin-right:0}
+.mlabel{font-size:18px;color:#A3AFBF;color:var(--muted);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.mlabel svg{margin-right:8px}
+.mval{font-size:38px;font-weight:500;line-height:1}
+.mval small{font-size:20px;font-weight:400;color:#A3AFBF;color:var(--muted)}
+.msub{font-size:17px;color:#A3AFBF;color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:#2C3744;background:var(--track);overflow:hidden}
+.bar div{height:6px;background:#F5B54A;background:var(--accent);width:0}
+.bottom{height:138px}
+.fc{-webkit-flex:3;flex:3;min-width:0;margin-right:22px}
+.day{-webkit-flex:1;flex:1;min-width:0;margin-right:12px;padding:12px 6px;border-radius:22px;
+  background:#1A222C;background:var(--card);display:-webkit-flex;display:flex;-webkit-flex-direction:column;
+  flex-direction:column;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between}
+.day:last-child{margin-right:0}
+.dname{font-size:18px;color:#A3AFBF;color:var(--muted)}
+.dtemp{font-size:20px;font-weight:500}
+.dtemp span{font-weight:400;color:#A3AFBF;color:var(--muted)}
+.quote{-webkit-flex:2;flex:2;min-width:0;padding:16px 24px;border-radius:24px;background:#1A222C;background:var(--card);
+  display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:space-between;justify-content:space-between}
+.qlabel{font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#F5B54A;color:var(--accent)}
+#quoteText{font-size:23px;line-height:1.25;font-weight:500}
+#nosleep{position:fixed;right:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none}
+
+.sep{display:none}
+@media (orientation:portrait){
+  #app{padding:24px 28px 28px 28px}
+  .head{margin-bottom:10px}
+  .main{-webkit-flex-direction:column;flex-direction:column;margin-bottom:16px}
+  .clock{-webkit-flex:1;flex:1;margin-right:0;margin-bottom:16px;padding:18px 28px}
+  .wx{padding:18px 28px}
+  #time{font-size:18vw}
+  #temp{font-size:13vw}
+  .clock > div:last-child{display:-webkit-flex;display:flex;-webkit-align-items:baseline;align-items:baseline}
+  #dayname{font-size:34px;margin-right:16px}
+  #datefull{margin-top:0}
+  #wxDesc{font-size:26px}
+  #wxSub{font-size:18px;margin-top:2px;white-space:nowrap}
+  #wxSub br{display:none}
+  .sep{display:inline}
+  #wxIcon svg{width:88px;height:88px}
+  .metrics{height:auto;-webkit-flex-wrap:wrap;flex-wrap:wrap;margin-bottom:16px}
+  .metric{-webkit-flex:1 1 40%;flex:1 1 40%;height:96px;margin-right:16px;margin-bottom:14px;padding:12px 20px}
+  .metric:nth-child(2n){margin-right:0}
+  .metric:nth-child(n+3){margin-bottom:0}
+  .mval{font-size:32px}
+  .bottom{height:auto;-webkit-flex-direction:column;flex-direction:column}
+  .fc{margin-right:0;margin-bottom:16px;height:112px}
+  .day{padding:8px 6px}
+  .quote{height:84px;padding:12px 24px;-webkit-justify-content:center;justify-content:center}
+  #quoteText{margin-top:4px}
+}
+</style>
+</head>
+<body>
+<noscript><div style="position:fixed;left:0;right:0;top:0;z-index:99;background:#b00020;color:#fff;font:22px/1.3 Helvetica,Arial,sans-serif;padding:16px 20px">JavaScript çalışmıyor. Dosyayı Mail veya hızlı görüntüleme yerine Safari ile açın.</div></noscript>
+<div id="app">
+
+  <div class="head">
+    <div id="greet"></div>
+    <div id="hint">Ekranı açık tutmak için bir kez dokun</div>
+    <div class="headr">
+      <span id="week"></span>
+      <button id="modeBtn" type="button" aria-label="Renk modunu değiştir"></button>
+    </div>
+  </div>
+
+  <div class="row main">
+    <div class="card clock">
+      <div id="time">--:--</div>
+      <div>
+        <div id="dayname"></div>
+        <div id="datefull"></div>
+      </div>
+    </div>
+
+    <div class="card wx">
+      <div class="loc">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.5-6-10a6 6 0 1112 0c0 4.5-6 10-6 10z"></path><circle cx="12" cy="11" r="2"></circle></svg>
+        <span id="city"></span>
+        <span id="wxStatus"></span>
+      </div>
+      <div class="wxmid">
+        <div id="temp">--°</div>
+        <div id="wxIcon"></div>
+      </div>
+      <div>
+        <div id="wxDesc">Hava verisi bekleniyor</div>
+        <div id="wxSub"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row metrics">
+    <div class="metric">
+      <div class="mlabel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C12 3 5 10.5 5 15a7 7 0 0014 0C19 10.5 12 3 12 3z"></path></svg>Nem</div>
+      <div class="mval" id="hum">--</div>
+      <div class="bar"><div id="humBar"></div></div>
+    </div>
+    <div class="metric">
+      <div class="mlabel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h11a3 3 0 10-3-3"></path><path d="M3 15h15a3 3 0 11-3 3"></path></svg>Rüzgâr</div>
+      <div class="mval" id="wind">--</div>
+      <div class="msub" id="windDir">&nbsp;</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17a8 8 0 1116 0"></path><path d="M12 17l4-5"></path></svg>Basınç</div>
+      <div class="mval" id="press">--</div>
+      <div class="msub">Deniz seviyesi</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0110 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6L7 12"></path><path d="M18.4 10.6L17 12"></path></svg>Gün ışığı</div>
+      <div class="mval" id="sunrise">--</div>
+      <div class="msub" id="sunset">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="row bottom">
+    <div class="row fc" id="forecast"></div>
+    <div class="quote">
+      <div class="qlabel">Günün sözü</div>
+      <div id="quoteText"></div>
+    </div>
+  </div>
+
+</div>
+
+<video id="nosleep" loop muted playsinline webkit-playsinline preload="auto" src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAANKbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAnR0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAEAAAABAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHsbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAoAAAAUABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABl21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAVdzdGJsAAAAt3N0c2QAAAAAAAAAAQAAAKdhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAEAAQABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALWF2Y0MBQsAe/+EAFmdCwB7aEJsBEAAAAwAQAAADAKDxYuoBAARozg/IAAAAEHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAAC6wAAAusAAAAGHN0dHMAAAAAAAAAAQAAAAoAAAgAAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAoAAAABAAAAPHN0c3oAAAAAAAAAAAAAAAoAAAKRAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAKAAAAFHN0Y28AAAAAAAAAAQAAA3oAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYwLjE2LjEwMAAAAAhmcmVlAAAC821kYXQAAAJvBgX//2vcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5ZjkgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIzIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT0yIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTAgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0wIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PTAgdGhyZWFkcz0yIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTUgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD0xMCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAaZYiEBH///w9FAAEqvycnJ1111111111114AAAAAGQZogEfCMAAAABkGaQBHwjAAAAAZBmmAR8IwAAAAGQZqAEfCMAAAABkGaoBHwjAAAAAZBmsAR8IwAAAAGQZrgEfCMAAAABkGbABDwjAAAAAZBmyA/wjA="></video>
+
+<script>
+(function () {
+  // ---- Ayarlar (konumu buradan değiştirebilirsin) ----
+  var CITY = 'İstanbul';
+  var LAT = 41.01, LON = 28.98;
+
+  var DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  var DAYS_SHORT = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+  var MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  var COMPASS = ['Kuzey', 'Kuzeydoğu', 'Doğu', 'Güneydoğu', 'Güney', 'Güneybatı', 'Batı', 'Kuzeybatı'];
+
+  var QUOTES = [
+    'Damlaya damlaya göl olur.', 'Sabreden derviş muradına ermiş.', 'Ayağını yorganına göre uzat.',
+    'Bugünün işini yarına bırakma.', 'Aza kanaat etmeyen çoğa erişemez.', 'Ağaç yaş iken eğilir.',
+    'Bir elin nesi var, iki elin sesi var.', 'Sakla samanı, gelir zamanı.', 'Taşıma su ile değirmen dönmez.',
+    'Acele işe şeytan karışır.', 'Zararın neresinden dönülse kârdır.', 'İyilik eden iyilik bulur.',
+    'Kervan yolda düzülür.', 'Sabır acıdır, meyvesi tatlıdır.', 'Gülü seven dikenine katlanır.',
+    'Ne ekersen onu biçersin.', 'Mum dibine ışık vermez.', 'Tatlı dil yılanı deliğinden çıkarır.',
+    'Bin düşün bir söyle.', 'Su akar, yolunu bulur.', 'Rüzgâr eken fırtına biçer.',
+    'İyilik yap, denize at.', 'Dağ dağa kavuşmaz, insan insana kavuşur.', 'Üzüm üzüme baka baka kararır.',
+    'Yenilen pehlivan güreşe doymaz.', 'Her işte bir hayır vardır.', 'Komşu komşunun külüne muhtaçtır.',
+    'Sabırla koruk helva olur.', 'Tatlı söz can azığıdır.', 'Erken kalkan yol alır.', 'Emek olmadan yemek olmaz.'
+  ];
+
+  // ---- Yardımcılar ----
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function store(k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+
+  // ---- Renk paletleri: gündüz, akşam, gece (kızıl) ----
+  var NAMES = ['bg', 'card', 'text', 'muted', 'accent', 'track'];
+  var P = {
+    day:   { bg: '#10151C', card: '#1A222C', text: '#F2F4F7', muted: '#A3AFBF', accent: '#F5B54A', track: '#2C3744' },
+    eve:   { bg: '#17120E', card: '#231C16', text: '#F3DFC2', muted: '#C0A887', accent: '#F29A47', track: '#3A2E24' },
+    night: { bg: '#0B0504', card: '#160A08', text: '#E8735A', muted: '#C4654E', accent: '#D9503A', track: '#2A1410' }
+  };
+  var KEYS = [
+    { t: 0, p: P.night }, { t: 6, p: P.night }, { t: 8, p: P.day }, { t: 17.5, p: P.day },
+    { t: 20, p: P.eve }, { t: 22.5, p: P.night }, { t: 24, p: P.night }
+  ];
+  function hex(h) { return [parseInt(h.substr(1, 2), 16), parseInt(h.substr(3, 2), 16), parseInt(h.substr(5, 2), 16)]; }
+  function mix(a, b, f) {
+    var out = {}, i, j, ca, cb, r;
+    for (i = 0; i < NAMES.length; i++) {
+      ca = hex(a[NAMES[i]]); cb = hex(b[NAMES[i]]); r = [];
+      for (j = 0; j < 3; j++) { r.push(Math.round(ca[j] + (cb[j] - ca[j]) * f)); }
+      out[NAMES[i]] = 'rgb(' + r.join(',') + ')';
+    }
+    return out;
+  }
+  function paletteAt(h) {
+    var i, a, b;
+    for (i = 0; i < KEYS.length - 1; i++) {
+      a = KEYS[i]; b = KEYS[i + 1];
+      if (h >= a.t && h <= b.t) { return mix(a.p, b.p, (h - a.t) / (b.t - a.t)); }
+    }
+    return mix(P.night, P.night, 0);
+  }
+
+  var MODES = ['auto', 'day', 'eve', 'night'];
+  var MODE_LABELS = { auto: 'Renk: Otomatik', day: 'Renk: Gündüz', eve: 'Renk: Akşam', night: 'Renk: Gece' };
+  var mode = load('hubMode');
+  if (!MODE_LABELS[mode]) { mode = 'auto'; }
+
+  function applyTheme(now) {
+    var h = now.getHours() + now.getMinutes() / 60;
+    var pal = mode === 'auto' ? paletteAt(h) : mix(P[mode], P[mode], 0);
+    var s = document.documentElement.style, i;
+    for (i = 0; i < NAMES.length; i++) { s.setProperty('--' + NAMES[i], pal[NAMES[i]]); }
+    // Eski tarayıcılarda değişken desteği yoksa en azından zemini ayarla
+    document.body.style.background = pal.bg;
+    $('modeBtn').textContent = MODE_LABELS[mode];
+  }
+
+  // ---- Simgeler ----
+  var CLOUD = 'M7 15h10a4 4 0 00.5-7.97A5.5 5.5 0 006.6 6.2 4.5 4.5 0 007 15z';
+  function icon(kind, size) {
+    var a = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    var b = '</svg>';
+    var body = '';
+    if (kind === 'clear') {
+      body = '<circle cx="12" cy="12" r="4"></circle><path d="M12 3v2"></path><path d="M12 19v2"></path><path d="M3 12h2"></path><path d="M19 12h2"></path><path d="M5.6 5.6L7 7"></path><path d="M17 17l1.4 1.4"></path><path d="M5.6 18.4L7 17"></path><path d="M17 7l1.4-1.4"></path>';
+    } else if (kind === 'moon') {
+      body = '<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"></path>';
+    } else if (kind === 'partly') {
+      body = '<circle cx="9" cy="8.5" r="3"></circle><path d="M9 2.5v1"></path><path d="M3 8.5h1"></path><path d="M4.8 4.3l.7.7"></path><path d="M13.2 4.3l-.7.7"></path><path d="M8 20h9.5a3.5 3.5 0 00.4-7A5 5 0 008.3 11.9 4 4 0 008 20z"></path>';
+    } else if (kind === 'fog') {
+      body = '<path d="' + CLOUD + '"></path><path d="M5 18h14"></path><path d="M8 21h8"></path>';
+    } else if (kind === 'rain') {
+      body = '<path d="' + CLOUD + '"></path><path d="M8 18.5l-1 2"></path><path d="M12 18.5l-1 2"></path><path d="M16 18.5l-1 2"></path>';
+    } else if (kind === 'snow') {
+      body = '<path d="' + CLOUD + '"></path><path d="M8 19h.01"></path><path d="M12 20.5h.01"></path><path d="M16 19h.01"></path>';
+    } else if (kind === 'storm') {
+      body = '<path d="' + CLOUD + '"></path><path d="M12.5 15l-2 3h3l-2 3"></path>';
+    } else {
+      body = '<path d="' + CLOUD + '"></path>';
+    }
+    return a + body + b;
+  }
+
+  function describe(code) {
+    if (code === 0) { return { k: 'clear', t: 'Açık' }; }
+    if (code === 1) { return { k: 'clear', t: 'Çoğunlukla açık' }; }
+    if (code === 2) { return { k: 'partly', t: 'Parçalı bulutlu' }; }
+    if (code === 3) { return { k: 'cloud', t: 'Kapalı' }; }
+    if (code === 45 || code === 48) { return { k: 'fog', t: 'Sisli' }; }
+    if (code >= 51 && code <= 57) { return { k: 'rain', t: 'Çisenti' }; }
+    if (code === 61) { return { k: 'rain', t: 'Hafif yağmur' }; }
+    if (code === 63) { return { k: 'rain', t: 'Yağmurlu' }; }
+    if (code === 65 || code === 66 || code === 67) { return { k: 'rain', t: 'Kuvvetli yağmur' }; }
+    if (code === 71 || code === 73 || code === 75 || code === 77) { return { k: 'snow', t: 'Karlı' }; }
+    if (code >= 80 && code <= 82) { return { k: 'rain', t: 'Sağanak yağış' }; }
+    if (code === 85 || code === 86) { return { k: 'snow', t: 'Kar sağanağı' }; }
+    if (code === 95) { return { k: 'storm', t: 'Gök gürültülü fırtına' }; }
+    if (code === 96 || code === 99) { return { k: 'storm', t: 'Dolu ve fırtına' }; }
+    return { k: 'cloud', t: 'Bulutlu' };
+  }
+
+  // ---- Saat, tarih, gün sözü ----
+  function isoWeek(d) {
+    var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    var y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - y0) / 86400000 + 1) / 7);
+  }
+  function greeting(h) {
+    if (h >= 5 && h < 12) { return 'Günaydın'; }
+    if (h >= 12 && h < 18) { return 'İyi günler'; }
+    if (h >= 18 && h < 23) { return 'İyi akşamlar'; }
+    return 'İyi geceler';
+  }
+
+  var lastMinute = -1, lastDay = -1;
+  function tick() {
+    var now = new Date();
+    var m = now.getMinutes();
+    $('time').textContent = pad(now.getHours()) + ':' + pad(m);
+    if (m !== lastMinute) {
+      lastMinute = m;
+      $('greet').textContent = greeting(now.getHours());
+      applyTheme(now);
+    }
+    if (now.getDate() !== lastDay) {
+      lastDay = now.getDate();
+      $('dayname').textContent = DAYS[now.getDay()];
+      $('datefull').textContent = now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+      $('week').textContent = 'Hafta ' + isoWeek(now);
+      var start = new Date(now.getFullYear(), 0, 0);
+      var doy = Math.floor((now - start) / 86400000);
+      var q = QUOTES[doy % QUOTES.length];
+      var qe = $('quoteText');
+      qe.textContent = q;
+      qe.style.fontSize = q.length > 36 ? '20px' : '23px';
+    }
+  }
+
+  // ---- Hava durumu (Open-Meteo, anahtarsız) ----
+  var URL_WX = 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON +
+    '&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m' +
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=6';
+
+  var lastOk = null;
+  function setStatus(text) { $('wxStatus').textContent = text; }
+  function num(v) { return (typeof v === 'number' && isFinite(v)); }
+
+  function render(d) {
+    var c = d.current, dl = d.daily, i, html = '';
+    if (!c || !dl) { return false; }
+    var w = describe(c.weather_code);
+    var kind = (w.k === 'clear' && c.is_day === 0) ? 'moon' : w.k;
+    if (num(c.temperature_2m)) { $('temp').textContent = Math.round(c.temperature_2m) + '°'; }
+    $('wxIcon').innerHTML = icon(kind, 104);
+    $('wxDesc').textContent = w.t;
+    var sub = [], hl = [];
+    if (num(c.apparent_temperature)) { sub.push('Hissedilen ' + Math.round(c.apparent_temperature) + '°'); }
+    if (dl.temperature_2m_max && num(dl.temperature_2m_max[0])) { hl.push('Yüksek ' + Math.round(dl.temperature_2m_max[0]) + '°'); }
+    if (dl.temperature_2m_min && num(dl.temperature_2m_min[0])) { hl.push('Düşük ' + Math.round(dl.temperature_2m_min[0]) + '°'); }
+    $('wxSub').innerHTML = sub.join('') + (sub.length && hl.length ? '<span class="sep"> · </span><br>' : '') + hl.join(' · ');
+
+    if (num(c.relative_humidity_2m)) {
+      $('hum').textContent = '%' + Math.round(c.relative_humidity_2m);
+      $('humBar').style.width = Math.max(0, Math.min(100, c.relative_humidity_2m)) + '%';
+    }
+    if (num(c.wind_speed_10m)) {
+      $('wind').innerHTML = Math.round(c.wind_speed_10m) + ' <small>km/sa</small>';
+    }
+    if (num(c.wind_direction_10m)) {
+      $('windDir').textContent = COMPASS[Math.round(c.wind_direction_10m / 45) % 8];
+    }
+    if (num(c.pressure_msl)) {
+      $('press').innerHTML = Math.round(c.pressure_msl) + ' <small>hPa</small>';
+    }
+    if (dl.sunrise && dl.sunrise[0]) { $('sunrise').textContent = String(dl.sunrise[0]).substr(11, 5); }
+    if (dl.sunset && dl.sunset[0]) { $('sunset').textContent = 'Batış ' + String(dl.sunset[0]).substr(11, 5); }
+
+    for (i = 1; i <= 5; i++) {
+      if (!dl.time || !dl.time[i]) { break; }
+      var p = String(dl.time[i]).split('-');
+      var dow = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+      var dw = describe(dl.weather_code[i]);
+      html += '<div class="day"><div class="dname">' + DAYS_SHORT[dow] + '</div>' + icon(dw.k, 40) +
+        '<div class="dtemp">' + Math.round(dl.temperature_2m_max[i]) + '° <span>' + Math.round(dl.temperature_2m_min[i]) + '°</span></div></div>';
+    }
+    $('forecast').innerHTML = html;
+    return true;
+  }
+
+  function stamp(date) { return pad(date.getHours()) + ':' + pad(date.getMinutes()); }
+
+  function loadWeather() {
+    var x = new XMLHttpRequest();
+    x.open('GET', URL_WX, true);
+    x.timeout = 20000;
+    x.onreadystatechange = function () {
+      if (x.readyState !== 4) { return; }
+      var ok = false;
+      if (x.status === 200) {
+        try {
+          var d = JSON.parse(x.responseText);
+          if (render(d)) {
+            ok = true;
+            lastOk = new Date();
+            store('hubWx', x.responseText);
+            store('hubWxTime', String(lastOk.getTime()));
+            setStatus('Güncellendi ' + stamp(lastOk));
+          }
+        } catch (e) { ok = false; }
+      }
+      if (!ok) {
+        setStatus(lastOk ? 'Bağlantı yok · ' + stamp(lastOk) : 'Bağlantı yok');
+        setTimeout(loadWeather, 60000);
+      }
+    };
+    x.send();
+  }
+
+  // ---- Ekranı açık tutma (en iyi çaba) ----
+  var video = $('nosleep');
+  var awake = false;
+  function wake() {
+    try { video.muted = true; var pr = video.play(); if (pr && pr.catch) { pr.catch(function () {}); } } catch (e) {}
+    try { if (navigator.wakeLock && navigator.wakeLock.request) { navigator.wakeLock.request('screen').catch(function () {}); } } catch (e2) {}
+    if (!awake) {
+      awake = true;
+      $('hint').style.display = 'none';
+    }
+  }
+  document.addEventListener('touchend', wake, false);
+  document.addEventListener('click', wake, false);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && awake) { wake(); } }, false);
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+  // ---- Başlat ----
+  $('city').textContent = CITY;
+  $('modeBtn').addEventListener('click', function () {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    store('hubMode', mode);
+    applyTheme(new Date());
+  }, false);
+
+  tick();
+  setInterval(tick, 1000);
+
+  var cached = load('hubWx'), cachedTime = load('hubWxTime');
+  if (cached) {
+    try {
+      if (render(JSON.parse(cached))) {
+        lastOk = cachedTime ? new Date(+cachedTime) : null;
+        setStatus(lastOk ? 'Eski veri · ' + stamp(lastOk) : 'Eski veri');
+      }
+    } catch (e3) {}
+  }
+  loadWeather();
+  setInterval(loadWeather, 15 * 60 * 1000);
+  window.addEventListener('online', loadWeather, false);
+})();
+</script>
+</body>
+</html>
